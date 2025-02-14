@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.cdnjs.cloudflare.com/ajax/libs/inter/3.19.3/inter.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-firestore-compat.min.js"></script>
     <title>Admin Dashboard</title>
@@ -50,7 +51,6 @@
         }
 
         button {
-            width: 100%;
             padding: 12px;
             background: #00bfff;
             color: white;
@@ -70,16 +70,40 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab-button {
+            padding: 10px 20px;
+            background: #f0f0f0;
+            color: #333;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .tab-button.active {
+            background: #00bfff;
+            color: white;
         }
 
         .search-export {
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
+            flex-wrap: wrap;
         }
 
         #searchInput {
             flex: 1;
+            min-width: 200px;
         }
 
         #exportBtn {
@@ -92,6 +116,7 @@
             border-collapse: collapse;
             margin-top: 20px;
             background: white;
+            overflow-x: auto;
         }
 
         th,
@@ -120,6 +145,86 @@
             margin-top: 10px;
             text-align: center;
         }
+
+        .qr-container {
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        #qrcode {
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            display: inline-block;
+        }
+
+        .qr-controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .url-display {
+            word-break: break-all;
+            text-align: center;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f0f0f0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        @media print {
+
+            .qr-controls,
+            .search-export,
+            #logoutBtn,
+            .tab-buttons {
+                display: none;
+            }
+
+            .qr-container {
+                box-shadow: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-export {
+                flex-direction: column;
+            }
+
+            #searchInput,
+            #exportBtn {
+                width: 100%;
+            }
+
+            .tab-buttons {
+                flex-direction: column;
+            }
+
+            .qr-controls {
+                flex-direction: column;
+            }
+
+            .qr-controls button {
+                width: 100%;
+            }
+
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
     </style>
 </head>
 
@@ -127,39 +232,61 @@
     <!-- Login Form -->
     <div id="loginContainer">
         <h2 style="margin-bottom: 20px;">Admin Login</h2>
-        <input type="text" id="username" placeholder="Username">
-        <input type="password" id="password" placeholder="Password">
-        <button onclick="login()">Login</button>
-        <div id="loginError" class="error hidden">Invalid credentials</div>
+        <form id="loginForm" onsubmit="login(event)">
+            <input type="text" id="username" placeholder="Username">
+            <input type="password" id="password" placeholder="Password">
+            <button type="submit">Login</button>
+            <div id="loginError" class="error hidden">Invalid credentials</div>
+        </form>
     </div>
 
     <!-- Dashboard -->
     <div id="dashboardContainer" class="hidden">
         <div class="dashboard-header">
-            <h2>Visitor Sign-ins</h2>
+            <h2>Admin Dashboard</h2>
             <button id="logoutBtn" onclick="logout()">Logout</button>
         </div>
 
-        <div class="search-export">
-            <input type="text" id="searchInput" placeholder="Search by name or email...">
-            <button id="exportBtn" onclick="exportToCSV()">Export to CSV</button>
+        <div class="tab-buttons">
+            <button class="tab-button active" onclick="showTab('records')">View Records</button>
+            <button class="tab-button" onclick="showTab('qr')">QR Generator</button>
         </div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Date & Time</th>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Email</th>
-                </tr>
-            </thead>
-            <tbody id="visitorTableBody"></tbody>
-        </table>
+        <!-- Records Section -->
+        <div id="recordsTab">
+            <div class="search-export">
+                <input type="text" id="searchInput" placeholder="Search by name...">
+                <button id="exportBtn" onclick="exportToCSV()">Export to CSV</button>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                    </tr>
+                </thead>
+                <tbody id="visitorTableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- QR Code Section -->
+        <div id="qrTab" class="hidden">
+            <div class="qr-container">
+                <h3>QR Code Generator</h3>
+                <div id="qrcode"></div>
+                <div class="url-display"></div>
+                <div class="qr-controls">
+                    <button onclick="generateNewQR()">Generate New QR Code</button>
+                    <button onclick="window.print()">Print QR Code</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
-        // Firebase initialization (use your config)
+        // Firebase initialization
         const firebaseConfig = {
             apiKey: "AIzaSyBiyx-8r2iK_kcv7f6rOoFTWlyuh-EfYKw",
             authDomain: "qr-code-azeem.firebaseapp.com",
@@ -180,25 +307,72 @@
 
         let visitors = [];
 
-        function login() {
+        // Check for existing login
+        document.addEventListener('DOMContentLoaded', () => {
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            if (isLoggedIn === 'true') {
+                document.getElementById('loginContainer').classList.add('hidden');
+                document.getElementById('dashboardContainer').classList.remove('hidden');
+                loadVisitors();
+                generateNewQR();
+            }
+        });
+
+        // Add form submit event for login
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            login();
+        });
+
+        // Add enter key support for login
+        document.getElementById('password').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                login();
+            }
+        });
+
+        function login(event) {
+            if (event) event.preventDefault();
+
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
             if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+                localStorage.setItem('isLoggedIn', 'true');
                 document.getElementById('loginContainer').classList.add('hidden');
                 document.getElementById('dashboardContainer').classList.remove('hidden');
                 document.getElementById('loginError').classList.add('hidden');
                 loadVisitors();
+                generateNewQR();
             } else {
                 document.getElementById('loginError').classList.remove('hidden');
             }
         }
 
         function logout() {
+            localStorage.removeItem('isLoggedIn');
             document.getElementById('loginContainer').classList.remove('hidden');
             document.getElementById('dashboardContainer').classList.add('hidden');
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
+        }
+
+        function showTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Show/hide content
+            if (tabName === 'records') {
+                document.getElementById('recordsTab').classList.remove('hidden');
+                document.getElementById('qrTab').classList.add('hidden');
+            } else {
+                document.getElementById('recordsTab').classList.add('hidden');
+                document.getElementById('qrTab').classList.remove('hidden');
+            }
         }
 
         async function loadVisitors() {
@@ -230,7 +404,6 @@
                     <td>${timestamp.toLocaleString()}</td>
                     <td>${visitor.firstName || ''}</td>
                     <td>${visitor.lastName || ''}</td>
-                    <td>${visitor.email || ''}</td>
                 `;
 
                 tbody.appendChild(row);
@@ -238,7 +411,7 @@
         }
 
         function exportToCSV() {
-            const headers = ['Date & Time', 'First Name', 'Last Name', 'Email'];
+            const headers = ['Date & Time', 'First Name', 'Last Name'];
             const csvRows = [headers];
 
             visitors.forEach(visitor => {
@@ -246,8 +419,7 @@
                 csvRows.push([
                     timestamp.toLocaleString(),
                     visitor.firstName || '',
-                    visitor.lastName || '',
-                    visitor.email || ''
+                    visitor.lastName || ''
                 ]);
             });
 
@@ -265,11 +437,35 @@
             const searchTerm = e.target.value.toLowerCase();
             const filteredVisitors = visitors.filter(visitor =>
                 visitor.firstName?.toLowerCase().includes(searchTerm) ||
-                visitor.lastName?.toLowerCase().includes(searchTerm) ||
-                visitor.email?.toLowerCase().includes(searchTerm)
+                visitor.lastName?.toLowerCase().includes(searchTerm)
             );
             renderVisitors(filteredVisitors);
         });
+
+        // QR Code functionality
+        let qrcode;
+
+        function initQRCode(url) {
+            const qrcodeContainer = document.getElementById("qrcode");
+            qrcodeContainer.innerHTML = '';
+
+            qrcode = new QRCode(qrcodeContainer, {
+                text: url,
+                width: 256,
+                height: 256,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            document.querySelector('.url-display').textContent = url;
+        }
+
+        function generateNewQR() {
+            const signinURL = window.location.href.replace('admin.html', 'signin.html');
+            const uniqueURL = `${signinURL}?t=${Date.now()}`;
+            initQRCode(uniqueURL);
+        }
     </script>
 </body>
 

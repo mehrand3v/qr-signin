@@ -149,24 +149,7 @@
             cursor: not-allowed;
         }
 
-        .message-container {
-            min-height: 50px;
-            margin-top: 15px;
-        }
 
-        .success-message {
-            color: #4BB543;
-            text-align: center;
-            font-size: 16px;
-            visibility: hidden;
-            opacity: 0;
-            transition: opacity 0.5s ease;
-        }
-
-        .success-message.show {
-            visibility: visible;
-            opacity: 1;
-        }
 
         @keyframes pulse {
             from {
@@ -204,8 +187,7 @@
 
         <!-- First name field -->
         <div class="form-group">
-            <input class="input" type="text" id="firstname" name="firstname" placeholder="Enter your first name"
-                required>
+            <input class="input" type="text" id="firstname" name="firstname" placeholder="Enter your first name" required>
             <div class="error-message">Please enter a valid first name</div>
         </div>
 
@@ -215,21 +197,8 @@
             <div class="error-message">Please enter a valid last name</div>
         </div>
 
-        <!-- Email field -->
-        <div class="form-group">
-            <input class="input" type="email" id="email" name="email" placeholder="Enter your email" required>
-            <div class="error-message">Please enter a valid email address</div>
-        </div>
-
         <!-- Submit button -->
         <button class="submit" type="submit">Submit</button>
-
-        <!-- Message container -->
-        <div class="message-container">
-            <div class="success-message" id="successMessage">
-                You have been signed in successfully
-            </div>
-        </div>
     </form>
 
     <script src="./script.js" type="module"></script>
