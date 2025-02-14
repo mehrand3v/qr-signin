@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.cdnjs.cloudflare.com/ajax/libs/inter/3.19.3/inter.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-firestore-compat.min.js"></script>
+    <title>Admin Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        #loginContainer,
+        #dashboardContainer {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        #loginContainer {
+            max-width: 400px;
+            margin-top: 100px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #00bfff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 8px 0;
+        }
+
+        button:hover {
+            background: #0095cc;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .search-export {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        #searchInput {
+            flex: 1;
+        }
+
+        #exportBtn {
+            width: auto;
+            white-space: nowrap;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        #logoutBtn {
+            width: auto;
+            padding: 8px 16px;
+        }
+
+        .error {
+            color: red;
+            margin-top: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Login Form -->
+    <div id="loginContainer">
+        <h2 style="margin-bottom: 20px;">Admin Login</h2>
+        <input type="text" id="username" placeholder="Username">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="login()">Login</button>
+        <div id="loginError" class="error hidden">Invalid credentials</div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboardContainer" class="hidden">
+        <div class="dashboard-header">
+            <h2>Visitor Sign-ins</h2>
+            <button id="logoutBtn" onclick="logout()">Logout</button>
+        </div>
+
+        <div class="search-export">
+            <input type="text" id="searchInput" placeholder="Search by name or email...">
+            <button id="exportBtn" onclick="exportToCSV()">Export to CSV</button>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Date & Time</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Email</th>
+                </tr>
+            </thead>
+            <tbody id="visitorTableBody"></tbody>
+        </table>
+    </div>
+
+    <script>
+        // Firebase initialization (use your config)
+        const firebaseConfig = {
+            apiKey: "AIzaSyBiyx-8r2iK_kcv7f6rOoFTWlyuh-EfYKw",
+            authDomain: "qr-code-azeem.firebaseapp.com",
+            projectId: "qr-code-azeem",
+            storageBucket: "qr-code-azeem.firebasestorage.app",
+            messagingSenderId: "240169376117",
+            appId: "1:240169376117:web:684bcd0c2d16fbd5389b3c",
+            measurementId: "G-0VNVJ8ZHFH"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Simple authentication
+        const ADMIN_CREDENTIALS = {
+            username: 'admin',
+            password: 'admin123'
+        };
+
+        let visitors = [];
+
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+                document.getElementById('loginContainer').classList.add('hidden');
+                document.getElementById('dashboardContainer').classList.remove('hidden');
+                document.getElementById('loginError').classList.add('hidden');
+                loadVisitors();
+            } else {
+                document.getElementById('loginError').classList.remove('hidden');
+            }
+        }
+
+        function logout() {
+            document.getElementById('loginContainer').classList.remove('hidden');
+            document.getElementById('dashboardContainer').classList.add('hidden');
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+        }
+
+        async function loadVisitors() {
+            try {
+                const snapshot = await db.collection('signins')
+                    .orderBy('timestamp', 'desc')
+                    .get();
+
+                visitors = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+
+                renderVisitors(visitors);
+            } catch (error) {
+                console.error("Error loading visitors:", error);
+            }
+        }
+
+        function renderVisitors(visitorsToRender) {
+            const tbody = document.getElementById('visitorTableBody');
+            tbody.innerHTML = '';
+
+            visitorsToRender.forEach(visitor => {
+                const row = document.createElement('tr');
+                const timestamp = visitor.timestamp?.toDate?.() || new Date();
+
+                row.innerHTML = `
+                    <td>${timestamp.toLocaleString()}</td>
+                    <td>${visitor.firstName || ''}</td>
+                    <td>${visitor.lastName || ''}</td>
+                    <td>${visitor.email || ''}</td>
+                `;
+
+                tbody.appendChild(row);
+            });
+        }
+
+        function exportToCSV() {
+            const headers = ['Date & Time', 'First Name', 'Last Name', 'Email'];
+            const csvRows = [headers];
+
+            visitors.forEach(visitor => {
+                const timestamp = visitor.timestamp?.toDate?.() || new Date();
+                csvRows.push([
+                    timestamp.toLocaleString(),
+                    visitor.firstName || '',
+                    visitor.lastName || '',
+                    visitor.email || ''
+                ]);
+            });
+
+            const csvContent = csvRows.map(row => row.join(',')).join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'visitors.csv';
+            a.click();
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const filteredVisitors = visitors.filter(visitor =>
+                visitor.firstName?.toLowerCase().includes(searchTerm) ||
+                visitor.lastName?.toLowerCase().includes(searchTerm) ||
+                visitor.email?.toLowerCase().includes(searchTerm)
+            );
+            renderVisitors(filteredVisitors);
+        });
+    </script>
+</body>
+
+</html>

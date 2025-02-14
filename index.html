@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.cdnjs.cloudflare.com/ajax/libs/inter/3.19.3/inter.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #f5f5f5;
+            padding: 20px;
+            gap: 2rem;
+        }
+
+        header {
+            text-align: center;
+        }
+
+        h1 {
+            color: #00bfff;
+            margin-bottom: 1rem;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        #qrcode {
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .url-display {
+            word-break: break-all;
+            text-align: center;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f0f0f0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .button {
+            padding: 12px 24px;
+            background: #00bfff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+
+        .button:hover {
+            background: #0095cc;
+        }
+
+        .instructions {
+            max-width: 600px;
+            text-align: center;
+            line-height: 1.6;
+            color: #666;
+        }
+    </style>
+    <title>Office Sign-in QR Code Generator</title>
+</head>
+
+<body>
+    <header>
+        <h1>Office Sign-in System</h1>
+        <p class="instructions">
+            Generate a QR code that links to your sign-in form. Print this QR code and place it in your office.
+            Visitors can scan it to access the sign-in form directly on their phones.
+        </p>
+    </header>
+
+    <div class="container">
+        <div id="qrcode"></div>
+        <div class="url-display"></div>
+        <div class="controls">
+            <button class="button" onclick="generateNewQR()">Generate New QR Code</button>
+            <button class="button" onclick="window.print()">Print QR Code</button>
+        </div>
+    </div>
+
+    <script>
+        let qrcode;
+
+        function initQRCode(url) {
+            // Clear the QR code container
+            const qrcodeContainer = document.getElementById("qrcode");
+            qrcodeContainer.innerHTML = '';
+
+            // Create new QR code
+            qrcode = new QRCode(qrcodeContainer, {
+                text: url,
+                width: 256,
+                height: 256,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            // Display URL below QR code
+            document.querySelector('.url-display').textContent = url;
+        }
+
+        function generateNewQR() {
+            // Get the current URL of your sign-in page
+            const signinURL = window.location.href.replace('qr-generator.html', 'signin.html');
+
+            // Add a unique identifier to prevent caching
+            const uniqueURL = `${signinURL}?t=${Date.now()}`;
+
+            initQRCode(uniqueURL);
+        }
+
+        // Initialize with first QR code on page load
+        window.onload = generateNewQR;
+
+        // Hide controls when printing
+        const style = document.createElement('style');
+        style.textContent = `
+            @media print {
+                .controls, .instructions {
+                    display: none;
+                }
+                .container {
+                    box-shadow: none;
+                }
+                #qrcode {
+                    margin: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+
+</html>

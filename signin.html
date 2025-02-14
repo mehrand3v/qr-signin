@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.cdnjs.cloudflare.com/ajax/libs/inter/3.19.3/inter.css" rel="stylesheet">
+    <!-- Add Firebase SDK -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-firestore-compat.min.js"></script>
+    <title>Sign In</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            width: 100%;
+            max-width: 380px;
+            padding: clamp(16px, 5vw, 25px);
+            border-radius: 16px;
+            background-color: #1a1a1a;
+            color: #fff;
+            border: 1px solid #333;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .title {
+            font-size: clamp(24px, 5vw, 32px);
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding-left: 30px;
+            color: #00bfff;
+            margin-bottom: 10px;
+        }
+
+        .title::before {
+            width: 18px;
+            height: 18px;
+        }
+
+        .title::after {
+            width: 18px;
+            height: 18px;
+            animation: pulse 1s linear infinite;
+        }
+
+        .title::before,
+        .title::after {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            left: 0px;
+            background-color: #00bfff;
+        }
+
+        .form-group {
+            position: relative;
+            width: 100%;
+        }
+
+        .input {
+            background-color: #333;
+            color: #fff;
+            width: 100%;
+            padding: 16px;
+            outline: 0;
+            border: 1px solid rgba(105, 105, 105, 0.397);
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .input:focus {
+            border-color: #00bfff;
+            background-color: #333;
+        }
+
+        .input.error {
+            border: 2px solid #ff4d4d;
+            background-color: #3a2828;
+        }
+
+        .input.valid {
+            border: 2px solid #4BB543;
+            background-color: #333;
+        }
+
+        .error-message {
+            color: #ff4d4d;
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .input.error+.error-message {
+            display: block;
+        }
+
+        .submit {
+            border: none;
+            outline: none;
+            padding: 16px;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            transition: 0.3s ease;
+            background-color: #00bfff;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .submit:hover {
+            background-color: #0095cc;
+        }
+
+        .submit:active {
+            transform: scale(0.98);
+        }
+
+        .submit:disabled {
+            background-color: #666;
+            cursor: not-allowed;
+        }
+
+        .message-container {
+            min-height: 50px;
+            margin-top: 15px;
+        }
+
+        .success-message {
+            color: #4BB543;
+            text-align: center;
+            font-size: 16px;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .success-message.show {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        @keyframes pulse {
+            from {
+                transform: scale(0.9);
+                opacity: 1;
+            }
+
+            to {
+                transform: scale(1.8);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .form {
+                gap: 12px;
+            }
+
+            .input {
+                padding: 14px;
+                font-size: 14px;
+            }
+
+            .submit {
+                padding: 14px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <form class="form" id="registerForm" novalidate>
+        <p class="title">Sign In below</p>
+
+        <!-- First name field -->
+        <div class="form-group">
+            <input class="input" type="text" id="firstname" name="firstname" placeholder="Enter your first name"
+                required>
+            <div class="error-message">Please enter a valid first name</div>
+        </div>
+
+        <!-- Last name field -->
+        <div class="form-group">
+            <input class="input" type="text" id="lastname" name="lastname" placeholder="Enter your last name" required>
+            <div class="error-message">Please enter a valid last name</div>
+        </div>
+
+        <!-- Email field -->
+        <div class="form-group">
+            <input class="input" type="email" id="email" name="email" placeholder="Enter your email" required>
+            <div class="error-message">Please enter a valid email address</div>
+        </div>
+
+        <!-- Submit button -->
+        <button class="submit" type="submit">Submit</button>
+
+        <!-- Message container -->
+        <div class="message-container">
+            <div class="success-message" id="successMessage">
+                You have been signed in successfully
+            </div>
+        </div>
+    </form>
+
+    <script src="./script.js" type="module"></script>
+</body>
