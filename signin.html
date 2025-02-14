@@ -1,15 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.cdnjs.cloudflare.com/ajax/libs/inter/3.19.3/inter.css" rel="stylesheet">
-    <!-- Add Firebase SDK -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-firestore-compat.min.js"></script>
     <title>Sign In</title>
-
     <style>
         * {
             margin: 0;
@@ -30,49 +25,42 @@
         .form {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 20px;
             width: 100%;
-            max-width: 380px;
-            padding: clamp(16px, 5vw, 25px);
+            max-width: 420px;
+            padding: 32px;
             border-radius: 16px;
             background-color: #1a1a1a;
             color: #fff;
             border: 1px solid #333;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
         }
 
         .title {
-            font-size: clamp(24px, 5vw, 32px);
+            font-size: 32px;
             font-weight: 700;
             letter-spacing: -0.5px;
             position: relative;
             display: flex;
             align-items: center;
-            padding-left: 30px;
+            padding-left: 36px;
             color: #00bfff;
-            margin-bottom: 10px;
-        }
-
-        .title::before {
-            width: 18px;
-            height: 18px;
-        }
-
-        .title::after {
-            width: 18px;
-            height: 18px;
-            animation: pulse 1s linear infinite;
+            margin-bottom: 8px;
         }
 
         .title::before,
         .title::after {
             position: absolute;
             content: "";
-            height: 16px;
-            width: 16px;
+            height: 20px;
+            width: 20px;
             border-radius: 50%;
             left: 0px;
             background-color: #00bfff;
+        }
+
+        .title::after {
+            animation: pulse 1s linear infinite;
         }
 
         .form-group {
@@ -84,7 +72,7 @@
             background-color: #333;
             color: #fff;
             width: 100%;
-            padding: 16px;
+            padding: 16px 20px;
             outline: 0;
             border: 1px solid rgba(105, 105, 105, 0.397);
             border-radius: 12px;
@@ -101,25 +89,34 @@
             background-color: #333;
         }
 
-        .input.error {
-            border: 2px solid #ff4d4d;
-            background-color: #3a2828;
+        .terms-container {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin: 4px 0;
+            padding: 0 4px;
         }
 
-        .input.valid {
-            border: 2px solid #4BB543;
-            background-color: #333;
+        .terms-checkbox {
+            width: 18px;
+            height: 18px;
+            margin-top: 2px;
         }
 
-        .error-message {
-            color: #ff4d4d;
-            font-size: 12px;
-            margin-top: 4px;
-            display: none;
+        .terms-text {
+            font-size: 15px;
+            color: #fff;
+            opacity: 0.9;
+            line-height: 1.4;
         }
 
-        .input.error+.error-message {
-            display: block;
+        .terms-text a {
+            color: #00bfff;
+            text-decoration: none;
+        }
+
+        .terms-text a:hover {
+            text-decoration: underline;
         }
 
         .submit {
@@ -130,14 +127,16 @@
             color: #fff;
             font-size: 16px;
             font-weight: 600;
-            transition: 0.3s ease;
             background-color: #00bfff;
             cursor: pointer;
-            margin-top: 10px;
+            margin-top: 8px;
+            position: relative;
+            transition: all 0.3s ease;
         }
 
         .submit:hover {
             background-color: #0095cc;
+            transform: translateY(-1px);
         }
 
         .submit:active {
@@ -147,59 +146,231 @@
         .submit:disabled {
             background-color: #666;
             cursor: not-allowed;
+            transform: none;
         }
 
+        .submit.loading {
+            color: transparent;
+        }
 
+        .submit.loading::after {
+            content: "";
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 3px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.8s linear infinite;
+        }
+
+        /* Success page styles */
+        .success-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #1a1a1a;
+            color: #fff;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            border: 1px solid #333;
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+        }
+
+        .success-icon {
+            color: #4BB543;
+            font-size: 72px;
+            margin-bottom: 24px;
+            animation: scaleIn 0.5s ease-out;
+            line-height: 1;
+        }
+
+        .success-message {
+            font-size: 32px;
+            color: #4BB543;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        .success-text {
+            color: #fff;
+            opacity: 0.9;
+            margin-bottom: 24px;
+            line-height: 1.6;
+            font-size: 16px;
+            max-width: 320px;
+        }
+
+        .redirect-message {
+            font-size: 15px;
+            color: #888;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .countdown {
+            color: #00bfff;
+            font-weight: 600;
+            font-size: 16px;
+            min-width: 10px;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2.5px solid #888;
+            border-top-color: #00bfff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 4px;
+        }
 
         @keyframes pulse {
             from {
                 transform: scale(0.9);
                 opacity: 1;
             }
-
             to {
                 transform: scale(1.8);
                 opacity: 0;
             }
         }
 
-        @media (max-width: 480px) {
-            .form {
-                gap: 12px;
-            }
-
-            .input {
-                padding: 14px;
-                font-size: 14px;
-            }
-
-            .submit {
-                padding: 14px;
-                font-size: 14px;
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
             }
         }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .form, .success-container {
+                padding: 24px;
+                max-width: 100%;
+                margin: 16px;
+            }
+
+            .title {
+                font-size: 28px;
+            }
+
+            .success-icon {
+                font-size: 64px;
+                margin-bottom: 20px;
+            }
+
+            .success-message {
+                font-size: 28px;
+            }
+
+            .success-text {
+                font-size: 15px;
+                margin-bottom: 20px;
+            }
+        }
+        /* Add to existing styles in signin.html */
+.loading-spinner {
+    display: none;
+    width: 24px;
+    height: 24px;
+    border: 3px solid #ffffff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 0.8s linear infinite;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.submit.loading {
+    color: transparent;
+}
+
+.submit.loading .loading-spinner {
+    display: block;
+}
+
+@keyframes spin {
+    to {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
     </style>
 </head>
 
 <body>
+    <!-- Sign In Form -->
     <form class="form" id="registerForm" novalidate>
         <p class="title">Sign In below</p>
 
-        <!-- First name field -->
         <div class="form-group">
             <input class="input" type="text" id="firstname" name="firstname" placeholder="Enter your first name" required>
-            <div class="error-message">Please enter a valid first name</div>
         </div>
 
-        <!-- Last name field -->
         <div class="form-group">
             <input class="input" type="text" id="lastname" name="lastname" placeholder="Enter your last name" required>
-            <div class="error-message">Please enter a valid last name</div>
         </div>
 
-        <!-- Submit button -->
-        <button class="submit" type="submit">Submit</button>
+        <div class="terms-container">
+            <input type="checkbox" id="terms" class="terms-checkbox" required>
+            <label for="terms" class="terms-text">
+                I agree to the <a href="#" target="_blank">Terms and Conditions</a> and <a href="#" target="_blank">Privacy Policy</a>
+            </label>
+        </div>
+<!-- Update the submit button in signin.html -->
+<button class="submit" type="submit" disabled>
+    Submit
+    <div class="loading-spinner"></div>
+</button>
+
     </form>
 
-    <script src="./script.js" type="module"></script>
+    <script>
+        const termsCheckbox = document.getElementById('terms');
+        const submitButton = document.querySelector('.submit');
+
+        termsCheckbox.addEventListener('change', () => {
+            submitButton.disabled = !termsCheckbox.checked;
+        });
+
+       document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitButton = document.querySelector('.submit');
+            submitButton.disabled = true;
+            submitButton.classList.add('loading');
+
+            try {
+                // Your existing form submission logic here
+                await new Promise(resolve => setTimeout(resolve, 1500)); // Simulated delay
+                window.location.href = 'success.html';
+            } catch (error) {
+                submitButton.disabled = false;
+                submitButton.classList.remove('loading');
+                console.error('Error:', error);
+            }
+        });
+
+    </script>
 </body>
+
+</html>
