@@ -7,7 +7,6 @@
     <link href="https://fonts.cdnjs.cloudflare.com/ajax/libs/inter/3.19.3/inter.css" rel="stylesheet">
     <title>Sign In</title>
     <style>
-        /* Previous styles remain the same */
         * {
             margin: 0;
             padding: 0;
@@ -110,33 +109,35 @@
         .terms-container {
             display: flex;
             flex-direction: column;
-            align-items: center;
+            align-items: flex-start;
             gap: 12px;
             margin: 8px 0;
-            text-align: center;
-            padding: 8px;
+            padding: 8px 4px;
+            width: 100%;
         }
 
         .checkbox-wrapper {
             display: flex;
-            align-items: center;
-            gap: 8px;
+            align-items: flex-start;
+            gap: 12px;
+            width: 100%;
         }
 
         .terms-checkbox {
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            height: 20px;
             margin: 0;
             cursor: pointer;
+            flex-shrink: 0;
+            margin-top: 2px;
         }
 
         .terms-text {
             font-size: 14px;
             color: #fff;
             opacity: 0.9;
-            line-height: 1.4;
-            max-width: 300px;
-            margin: 0 auto;
+            line-height: 1.5;
+            text-align: left;
         }
 
         .terms-text a {
@@ -220,12 +221,25 @@
 
         @media (max-width: 480px) {
             .form {
-                padding: 24px;
-                margin: 16px;
+                padding: 20px;
+                margin: 12px;
             }
 
             .title {
                 font-size: 28px;
+            }
+
+            .terms-container {
+                padding: 4px;
+            }
+
+            .checkbox-wrapper {
+                gap: 10px;
+            }
+
+            .terms-checkbox {
+                width: 18px;
+                height: 18px;
             }
 
             .terms-text {
@@ -240,7 +254,7 @@
 
         @media (max-width: 360px) {
             .form {
-                padding: 20px;
+                padding: 16px;
             }
 
             .title {
@@ -252,6 +266,10 @@
             .title::after {
                 height: 16px;
                 width: 16px;
+            }
+
+            .terms-container {
+                padding: 2px;
             }
         }
     </style>

@@ -349,7 +349,7 @@
         // Simple authentication
         const ADMIN_CREDENTIALS = {
             username: 'admin',
-            password: 'admin123'
+            password: 'azeembondihay'
         };
 
         let visitors = [];
@@ -567,6 +567,15 @@
             const uniqueURL = `${signinURL}?t=${Date.now()}`;
             initQRCode(uniqueURL);
         }
+        function logout() {
+                localStorage.removeItem('isLoggedIn');
+                document.getElementById('loginContainer').classList.remove('hidden');
+                document.getElementById('dashboardContainer').classList.add('hidden');
+                document.getElementById('username').value = '';
+                document.getElementById('password').value = '';
+                // Add redirect to index.html
+                window.location.href = 'index.html';
+            }
     </script>
 </body>
 
