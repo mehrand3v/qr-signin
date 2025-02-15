@@ -205,11 +205,14 @@
             document.querySelector('.url-display').textContent = url;
         }
 
+       
         function generateNewQR() {
-            const signinURL = 'https://qrsignin.netlify.app/signin.html';
-            const uniqueURL = `${signinURL}?t=${Date.now()}`;
-            initQRCode(uniqueURL);
-        }
+                const signinURL = 'https://qrsignin.netlify.app/signin.html';
+                // Use a daily timestamp instead of milliseconds for more stability
+                const today = new Date().toISOString().split('T')[0];
+                const uniqueURL = `${signinURL}?t=${today}`;
+                initQRCode(uniqueURL);
+            }
 
         // Initialize with first QR code on page load
         window.onload = generateNewQR;

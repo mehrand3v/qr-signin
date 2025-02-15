@@ -4,6 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-firestore-compat.min.js"></script>
+    <script src="script.js" type="module" defer></script>
     <link href="https://fonts.cdnjs.cloudflare.com/ajax/libs/inter/3.19.3/inter.css" rel="stylesheet">
     <title>Sign In</title>
     <style>
@@ -374,6 +377,24 @@
                 submitButton.classList.remove('loading');
             }
         });
+        document.addEventListener('DOMContentLoaded', () => {
+                const form = document.getElementById('registerForm');
+                const inputs = form.querySelectorAll('.input');
+                const termsCheckbox = document.getElementById('terms');
+                const submitButton = document.querySelector('.submit');
+
+                // Enable/disable submit button based on form validity
+                function updateSubmitButton() {
+                    submitButton.disabled = !form.checkValidity() || !termsCheckbox.checked;
+                }
+
+                inputs.forEach(input => {
+                    input.addEventListener('input', updateSubmitButton);
+                    input.addEventListener('keypress', preventNumbers);
+                });
+
+                termsCheckbox.addEventListener('change', updateSubmitButton);
+            });
     </script>
 </body>
 
