@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.cdnjs.cloudflare.com/ajax/libs/inter/3.19.3/inter.css" rel="stylesheet">
     <title>Sign In</title>
     <style>
+        /* Previous styles remain the same */
         * {
             margin: 0;
             padding: 0;
@@ -89,27 +91,52 @@
             background-color: #333;
         }
 
+        .input.error {
+            border-color: #ff4444;
+        }
+
+        .error-message {
+            color: #ff4444;
+            font-size: 12px;
+            margin-top: 4px;
+            padding-left: 4px;
+            display: none;
+        }
+
+        .error-message.visible {
+            display: block;
+        }
+
         .terms-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            margin: 8px 0;
+            text-align: center;
+            padding: 8px;
+        }
+
+        .checkbox-wrapper {
             display: flex;
             align-items: center;
             gap: 8px;
-            margin: 4px 0;
-            padding: 0 4px;
-            text-align:center;
-
         }
 
         .terms-checkbox {
             width: 18px;
             height: 18px;
-            margin-top: 2px;
+            margin: 0;
+            cursor: pointer;
         }
 
         .terms-text {
-            font-size: 12px;
+            font-size: 14px;
             color: #fff;
             opacity: 0.9;
-            /* line-height: 1.4; */
+            line-height: 1.4;
+            max-width: 300px;
+            margin: 0 auto;
         }
 
         .terms-text a {
@@ -136,12 +163,12 @@
             transition: all 0.3s ease;
         }
 
-        .submit:hover {
+        .submit:hover:not(:disabled) {
             background-color: #0095cc;
             transform: translateY(-1px);
         }
 
-        .submit:active {
+        .submit:active:not(:disabled) {
             transform: scale(0.98);
         }
 
@@ -155,85 +182,22 @@
             color: transparent;
         }
 
-        .submit.loading::after {
-            content: "";
-            position: absolute;
+        .loading-spinner {
+            display: none;
             width: 24px;
             height: 24px;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
             border: 3px solid #ffffff;
             border-radius: 50%;
             border-top-color: transparent;
             animation: spin 0.8s linear infinite;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
 
-        /* Success page styles */
-        .success-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background-color: #1a1a1a;
-            color: #fff;
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-            border: 1px solid #333;
-            width: 100%;
-            max-width: 420px;
-            text-align: center;
-        }
-
-        .success-icon {
-            color: #4BB543;
-            font-size: 72px;
-            margin-bottom: 24px;
-            animation: scaleIn 0.5s ease-out;
-            line-height: 1;
-        }
-
-        .success-message {
-            font-size: 32px;
-            color: #4BB543;
-            margin-bottom: 16px;
-            font-weight: 600;
-        }
-
-        .success-text {
-            color: #fff;
-            opacity: 0.9;
-            margin-bottom: 24px;
-            line-height: 1.6;
-            font-size: 16px;
-            max-width: 320px;
-        }
-
-        .redirect-message {
-            font-size: 15px;
-            color: #888;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .countdown {
-            color: #00bfff;
-            font-weight: 600;
-            font-size: 16px;
-            min-width: 10px;
-        }
-
-        .spinner {
-            width: 20px;
-            height: 20px;
-            border: 2.5px solid #888;
-            border-top-color: #00bfff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-left: 4px;
+        .submit.loading .loading-spinner {
+            display: block;
         }
 
         @keyframes pulse {
@@ -241,6 +205,7 @@
                 transform: scale(0.9);
                 opacity: 1;
             }
+
             to {
                 transform: scale(1.8);
                 opacity: 0;
@@ -249,25 +214,13 @@
 
         @keyframes spin {
             to {
-                transform: rotate(360deg);
-            }
-        }
-
-        @keyframes scaleIn {
-            from {
-                transform: scale(0);
-                opacity: 0;
-            }
-            to {
-                transform: scale(1);
-                opacity: 1;
+                transform: translate(-50%, -50%) rotate(360deg);
             }
         }
 
         @media (max-width: 480px) {
-            .form, .success-container {
+            .form {
                 padding: 24px;
-                max-width: 100%;
                 margin: 16px;
             }
 
@@ -275,103 +228,134 @@
                 font-size: 28px;
             }
 
-            .success-icon {
-                font-size: 64px;
-                margin-bottom: 20px;
+            .terms-text {
+                font-size: 13px;
             }
 
-            .success-message {
-                font-size: 28px;
-            }
-
-            .success-text {
+            .input {
+                padding: 14px 16px;
                 font-size: 15px;
-                margin-bottom: 20px;
             }
         }
-        /* Add to existing styles in signin.html */
-.loading-spinner {
-    display: none;
-    width: 24px;
-    height: 24px;
-    border: 3px solid #ffffff;
-    border-radius: 50%;
-    border-top-color: transparent;
-    animation: spin 0.8s linear infinite;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
 
-.submit.loading {
-    color: transparent;
-}
+        @media (max-width: 360px) {
+            .form {
+                padding: 20px;
+            }
 
-.submit.loading .loading-spinner {
-    display: block;
-}
+            .title {
+                font-size: 24px;
+                padding-left: 32px;
+            }
 
-@keyframes spin {
-    to {
-        transform: translate(-50%, -50%) rotate(360deg);
-    }
-}
+            .title::before,
+            .title::after {
+                height: 16px;
+                width: 16px;
+            }
+        }
     </style>
 </head>
 
 <body>
-    <!-- Sign In Form -->
     <form class="form" id="registerForm" novalidate>
         <p class="title">Sign In below</p>
 
         <div class="form-group">
-            <input class="input" type="text" id="firstname" name="firstname" placeholder="Enter your first name" required>
+            <input class="input" type="text" id="firstname" name="firstname" placeholder="Enter your first name"
+                required minlength="2" pattern="[A-Za-z]+">
+            <div class="error-message">Please enter a valid first name (letters only)</div>
         </div>
 
         <div class="form-group">
-            <input class="input" type="text" id="lastname" name="lastname" placeholder="Enter your last name" required>
+            <input class="input" type="text" id="lastname" name="lastname" placeholder="Enter your last name" required
+                minlength="2" pattern="[A-Za-z]+">
+            <div class="error-message">Please enter a valid last name (letters only)</div>
         </div>
 
-      <div class="terms-container">
-    <input type="checkbox" id="terms" class="terms-checkbox" required>
-    <label for="terms" class="terms-text">
-        I agree to all Terms & Privacy Policies
-    </label>
-</div>
-<!-- Update the submit button in signin.html -->
-<button class="submit" type="submit" disabled>
-    Submit
-    <div class="loading-spinner"></div>
-</button>
+        <div class="terms-container">
+            <div class="checkbox-wrapper">
+                <input type="checkbox" id="terms" class="terms-checkbox" required>
+                <label for="terms" class="terms-text">
+                    I agree to all Terms & Privacy Policies
+                </label>
+            </div>
+        </div>
 
+        <button class="submit" type="submit" disabled>
+            Submit
+            <div class="loading-spinner"></div>
+        </button>
     </form>
 
     <script>
+        const form = document.getElementById('registerForm');
+        const inputs = form.querySelectorAll('.input');
         const termsCheckbox = document.getElementById('terms');
         const submitButton = document.querySelector('.submit');
 
-        termsCheckbox.addEventListener('change', () => {
-            submitButton.disabled = !termsCheckbox.checked;
+        function validateInput(input) {
+            const isValid = input.checkValidity();
+            const errorMessage = input.nextElementSibling;
+
+            if (!isValid) {
+                input.classList.add('error');
+                errorMessage.classList.add('visible');
+            } else {
+                input.classList.remove('error');
+                errorMessage.classList.remove('visible');
+            }
+
+            return isValid;
+        }
+
+        function validateForm() {
+            let isValid = true;
+            inputs.forEach(input => {
+                if (!validateInput(input)) {
+                    isValid = false;
+                }
+            });
+            return isValid && termsCheckbox.checked;
+        }
+
+        inputs.forEach(input => {
+            input.addEventListener('input', () => {
+                validateInput(input);
+                submitButton.disabled = !validateForm();
+            });
+
+            input.addEventListener('blur', () => {
+                validateInput(input);
+                submitButton.disabled = !validateForm();
+            });
         });
 
-       document.getElementById('registerForm').addEventListener('submit', async (e) => {
+        termsCheckbox.addEventListener('change', () => {
+            submitButton.disabled = !validateForm();
+        });
+
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const submitButton = document.querySelector('.submit');
+
+            if (!validateForm()) {
+                return;
+            }
+
             submitButton.disabled = true;
             submitButton.classList.add('loading');
 
             try {
-                // Your existing form submission logic here
-                await new Promise(resolve => setTimeout(resolve, 1500)); // Simulated delay
+                // Simulated form submission delay
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                // Redirect to success page
                 window.location.href = 'success.html';
             } catch (error) {
+                console.error('Error:', error);
                 submitButton.disabled = false;
                 submitButton.classList.remove('loading');
-                console.error('Error:', error);
             }
         });
-
     </script>
 </body>
 

@@ -6,18 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.cdnjs.cloudflare.com/ajax/libs/inter/3.19.3/inter.css" rel="stylesheet">
     <title>Sign In Successful</title>
-    <!-- Include the same styles as above -->
-     <style>
+    <style>
         body {
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #f5f5f5;
-    padding: 20px;
-    margin: 0;
-}
-         .success-container {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f5f5f5;
+            padding: 20px;
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .success-container {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -63,35 +64,29 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding: 0 10px;
         }
 
         .countdown {
             color: #00bfff;
             font-weight: 600;
             font-size: 16px;
-            min-width: 10px;
+            min-width: 16px;
+            display: inline-block;
         }
 
         .spinner {
-            width: 20px;
-            height: 20px;
-            border: 2.5px solid #888;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #888;
             border-top-color: #00bfff;
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin-left: 4px;
-        }
-
-        @keyframes pulse {
-            from {
-                transform: scale(0.9);
-                opacity: 1;
-            }
-            to {
-                transform: scale(1.8);
-                opacity: 0;
-            }
+            display: inline-block;
+            vertical-align: middle;
         }
 
         @keyframes spin {
@@ -105,6 +100,7 @@
                 transform: scale(0);
                 opacity: 0;
             }
+
             to {
                 transform: scale(1);
                 opacity: 1;
@@ -112,31 +108,63 @@
         }
 
         @media (max-width: 480px) {
-            .form, .success-container {
+            .success-container {
                 padding: 24px;
                 max-width: 90%;
                 margin: 16px;
             }
 
-            .title {
-                font-size: 28px;
-            }
-
             .success-icon {
-                font-size: 64px;
+                font-size: 56px;
                 margin-bottom: 20px;
             }
 
             .success-message {
-                font-size: 28px;
+                font-size: 24px;
+                margin-bottom: 12px;
             }
 
             .success-text {
-                font-size: 15px;
+                font-size: 14px;
                 margin-bottom: 20px;
+                padding: 0 10px;
+            }
+
+            .redirect-message {
+                font-size: 14px;
+                gap: 6px;
+            }
+
+            .countdown {
+                font-size: 14px;
+            }
+
+            .spinner {
+                width: 14px;
+                height: 14px;
+                border-width: 2px;
+                margin-left: 2px;
             }
         }
-     </style>
+
+        @media (max-width: 360px) {
+            .success-container {
+                padding: 20px;
+            }
+
+            .success-icon {
+                font-size: 48px;
+            }
+
+            .success-message {
+                font-size: 22px;
+            }
+
+            .redirect-message {
+                font-size: 13px;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -145,7 +173,7 @@
         <div class="success-message">Sign In Successful!</div>
         <p class="success-text">Thank you for signing in.</p>
         <div class="redirect-message">
-            Redirecting to sign in page in <span class="countdown" style="color:white">5</span> seconds
+            Redirecting to sign in page in <span class="countdown">5</span> seconds
             <div class="spinner"></div>
         </div>
     </div>

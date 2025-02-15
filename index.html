@@ -21,100 +21,157 @@
             justify-content: center;
             align-items: center;
             background-color: #f5f5f5;
-            padding: 20px;
+            padding: 1.5rem;
             gap: 2rem;
+            color: #1a1a1a;
         }
 
         header {
             text-align: center;
+            max-width: 90%;
+            width: 100%;
+            padding: 0 1rem;
         }
-        header p{
-            color: #666;
-            font-size: 1.2rem;
+
+        header p {
+            color: #4a4a4a;
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
             max-width: 600px;
             line-height: 1.6;
-
+            margin: 0 auto;
+            padding: 0 1rem;
         }
 
         h1 {
-            color: #2214dc;
-            margin-bottom: 1rem;
+            color: #1a1a1a;
+            margin-bottom: 1.5rem;
+            font-size: clamp(1.75rem, 4vw, 2.5rem);
+            font-weight: 700;
+            letter-spacing: -0.5px;
         }
 
         .container {
-            max-width:98%;
+            width: min(90%, 450px);
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 2rem;
             background: white;
-            padding: 2rem;
-            border-radius: 16px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: clamp(1.5rem, 4vw, 2.5rem);
+            border-radius: 20px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease;
+        }
+
+        .container:hover {
+            transform: translateY(-2px);
         }
 
         #qrcode {
-            padding: 1rem;
+            padding: 1.5rem;
             background: white;
-            border-radius: 8px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        .controls {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            width: 100%;
-            max-width: 300px;
+        #qrcode img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
         }
 
         .url-display {
             word-break: break-all;
             text-align: center;
-            margin-top: 1rem;
-            padding: 1rem;
+            width: 100%;
+            padding: 1rem 1.25rem;
+            background: #f8f8f8;
+            border-radius: 12px;
+            font-size: clamp(0.8rem, 2vw, 0.9rem);
+            color: #666;
+            border: 1px solid #eee;
+            transition: background-color 0.3s ease;
+        }
+
+        .url-display:hover {
             background: #f0f0f0;
-            border-radius: 8px;
-            font-size: 0.9rem;
-        }
-
-        .button {
-            padding: 12px 24px;
-            background: #00bfff;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background 0.3s ease;
-        }
-
-        .button:hover {
-            background: #0095cc;
         }
 
         .instructions {
-            max-width: 600px;
+            max-width: min(600px, 90%);
             text-align: center;
             line-height: 1.6;
-            color: #666;
-            margin-bottom: 2rem;
+            color: #4a4a4a;
+            font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+            padding: 0 1rem;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .container {
+                padding: 1.25rem;
+                gap: 1.5rem;
+            }
+
+            #qrcode {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header {
+                padding: 0 0.5rem;
+            }
+
+            .container {
+                width: 95%;
+                padding: 1rem;
+            }
+
+            #qrcode {
+                padding: 0.75rem;
+            }
+
+            .url-display {
+                padding: 0.75rem 1rem;
+            }
+        }
+
+        @media print {
+            .container {
+                box-shadow: none;
+            }
+
+            #qrcode {
+                margin: 0;
+                box-shadow: none;
+            }
+
+            .url-display {
+                border: 1px solid #ddd;
+            }
         }
     </style>
-    <title>Office Sign-in QR Code Generator</title>
+    <title>QR Code Sign-in</title>
 </head>
 
 <body>
     <header>
-        <h1>Welcome</h1>
+        <h1>Welcome to Sign In</h1>
         <p class="instructions">
-            Please scan this QR code to Sign in.
+            Scan the QR code below using your mobile device to access the sign-in page securely.
         </p>
     </header>
 
     <div class="container">
         <div id="qrcode"></div>
         <div class="url-display"></div>
-
     </div>
 
     <script>
@@ -125,15 +182,13 @@
             const qrcodeContainer = document.getElementById("qrcode");
             qrcodeContainer.innerHTML = '';
 
-            // Create new QR code
+            // Create new QR code with improved options
             qrcode = new QRCode(qrcodeContainer, {
                 text: url,
                 width: 256,
                 height: 256,
-                // colorDark: "#000000",
-                // colorLight: "#ffffff",
-                colorDark: 'purple',
-                colorLight: 'yellow',
+                colorDark: "#1a1a1a",
+                colorLight: "#ffffff",
                 correctLevel: QRCode.CorrectLevel.H
             });
 
@@ -142,34 +197,13 @@
         }
 
         function generateNewQR() {
-            // Get the current URL of your sign-in page
             const signinURL = 'https://qrsignin.netlify.app/signin.html';
-
-            // Add a unique identifier to prevent caching
             const uniqueURL = `${signinURL}?t=${Date.now()}`;
-
             initQRCode(uniqueURL);
         }
 
         // Initialize with first QR code on page load
         window.onload = generateNewQR;
-
-        // Hide controls when printing
-        const style = document.createElement('style');
-        style.textContent = `
-            @media print {
-                .controls, .instructions {
-                    display: none;
-                }
-                .container {
-                    box-shadow: none;
-                }
-                #qrcode {
-                    margin: 0;
-                }
-            }
-        `;
-        document.head.appendChild(style);
     </script>
 </body>
 
