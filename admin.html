@@ -8,6 +8,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-firestore-compat.min.js"></script>
+    <!-- Add jsPDF library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Add jsPDF-AutoTable plugin for better table support -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <title>Admin Dashboard</title>
     <style>
         * {
@@ -74,10 +78,13 @@
             gap: 10px;
         }
 
+        /* Updated tab-buttons layout for desktop */
         .tab-buttons {
             display: flex;
-            gap: 10px;
+            justify-content: space-between;
+            /* Each end of the screen */
             margin-bottom: 20px;
+            width: 100%;
         }
 
         .tab-button {
@@ -135,9 +142,19 @@
             background-color: #f5f5f5;
         }
 
+        /* Updated logout button styles */
         #logoutBtn {
             width: auto;
             padding: 8px 16px;
+            background-color: #dc3545;
+            color: white;
+            border-radius: 4px;
+            border: none;
+            margin: 0;
+        }
+
+        #logoutBtn:hover {
+            background-color: #c82333;
         }
 
         .error {
@@ -184,7 +201,9 @@
             .qr-controls,
             .search-export,
             #logoutBtn,
-            .tab-buttons {
+            .tab-buttons,
+            button,
+            h2 {
                 display: none;
             }
 
@@ -194,11 +213,21 @@
         }
 
         @media (max-width: 768px) {
+
+            /* Keep dashboard header as row on mobile */
             .dashboard-header {
-                flex-direction: column;
-                align-items: stretch;
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
             }
 
+            /* Make logout button smaller on mobile */
+            #logoutBtn {
+                padding: 6px 12px;
+                font-size: 14px;
+            }
+
+            /* Stack search and export on mobile */
             .search-export {
                 flex-direction: column;
             }
@@ -208,16 +237,33 @@
                 width: 100%;
             }
 
+            /* Modified tab-buttons for mobile */
             .tab-buttons {
-                flex-direction: column;
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: stretch;
+                gap: 10px;
             }
 
+            .tab-button {
+                flex: 1 1 auto;
+                min-width: unset;
+                text-align: center;
+                white-space: nowrap;
+            }
+
+            /* Modified QR controls for mobile */
             .qr-controls {
-                flex-direction: column;
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 10px;
             }
 
             .qr-controls button {
-                width: 100%;
+                flex: 1 1 auto;
+                min-width: 150px;
+                max-width: 200px;
             }
 
             table {
@@ -225,49 +271,6 @@
                 overflow-x: auto;
             }
         }
-        /* Update the existing styles in admin.html */
-#logoutBtn {
-    background-color: #dc3545;  /* Red color for logout */
-    color: white;
-    padding: 8px 16px;
-    border-radius: 4px;
-    border: none;
-}
-
-#logoutBtn:hover {
-    background-color: #c82333;
-}
-
-@media (max-width: 768px) {
-    .dashboard-header {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 10px;
-    }
-
-    .tab-buttons {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 8px;
-    }
-
-    .search-export {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 8px;
-    }
-
-    table {
-        display: block;
-        overflow-x: auto;
-        white-space: nowrap;
-    }
-
-    td, th {
-        padding: 8px;
-        font-size: 14px;
-    }
-}
     </style>
 </head>
 
@@ -291,15 +294,16 @@
         </div>
 
         <div class="tab-buttons">
-            <button class="tab-button active" onclick="showTab('records')">View Records</button>
-            <button class="tab-button" onclick="showTab('qr')">QR Generator</button>
+            <button class="tab-button active" data-tab="records" onclick="showTab('records', this)">View
+                Records</button>
+            <button class="tab-button" data-tab="qr" onclick="showTab('qr', this)">QR Generator</button>
         </div>
 
         <!-- Records Section -->
         <div id="recordsTab">
             <div class="search-export">
                 <input type="text" id="searchInput" placeholder="Search by name...">
-                <button id="exportBtn" onclick="exportToCSV()">Export to CSV</button>
+                <button id="exportBtn" onclick="exportToPDF()">Export to PDF</button>
             </div>
 
             <table>
@@ -317,7 +321,6 @@
         <!-- QR Code Section -->
         <div id="qrTab" class="hidden">
             <div class="qr-container">
-                <h3>QR Code Generator</h3>
                 <div id="qrcode"></div>
                 <div class="url-display"></div>
                 <div class="qr-controls">
@@ -401,12 +404,19 @@
             document.getElementById('password').value = '';
         }
 
-        function showTab(tabName) {
+        function showTab(tabName, buttonElement) {
             // Update tab buttons
             document.querySelectorAll('.tab-button').forEach(button => {
                 button.classList.remove('active');
             });
-            event.target.classList.add('active');
+
+            // If a button element was passed, make it active
+            if (buttonElement) {
+                buttonElement.classList.add('active');
+            } else {
+                // Otherwise find the button by data attribute and make it active
+                document.querySelector(`.tab-button[data-tab="${tabName}"]`).classList.add('active');
+            }
 
             // Show/hide content
             if (tabName === 'records') {
@@ -420,6 +430,10 @@
 
         async function loadVisitors() {
             try {
+                // Show loading indicator
+                const tbody = document.getElementById('visitorTableBody');
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:20px;">Loading data...</td></tr>';
+
                 const snapshot = await db.collection('signins')
                     .orderBy('timestamp', 'desc')
                     .get();
@@ -432,12 +446,20 @@
                 renderVisitors(visitors);
             } catch (error) {
                 console.error("Error loading visitors:", error);
+                // Show error message
+                const tbody = document.getElementById('visitorTableBody');
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:20px;color:red;">Error loading data. Please try again.</td></tr>';
             }
         }
 
         function renderVisitors(visitorsToRender) {
             const tbody = document.getElementById('visitorTableBody');
             tbody.innerHTML = '';
+
+            if (visitorsToRender.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:20px;">No records found</td></tr>';
+                return;
+            }
 
             visitorsToRender.forEach(visitor => {
                 const row = document.createElement('tr');
@@ -453,26 +475,61 @@
             });
         }
 
-        function exportToCSV() {
-            const headers = ['Date & Time', 'First Name', 'Last Name'];
-            const csvRows = [headers];
+        function exportToPDF() {
+            if (visitors.length === 0) {
+                alert('No data to export');
+                return;
+            }
 
-            visitors.forEach(visitor => {
+            // Initialize jsPDF
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Add title
+            doc.setFontSize(18);
+            doc.text('Visitor Records', 14, 22);
+
+            // Prepare table data
+            const tableData = visitors.map(visitor => {
                 const timestamp = visitor.timestamp?.toDate?.() || new Date();
-                csvRows.push([
+                return [
                     timestamp.toLocaleString(),
                     visitor.firstName || '',
                     visitor.lastName || ''
-                ]);
+                ];
             });
 
-            const csvContent = csvRows.map(row => row.join(',')).join('\n');
-            const blob = new Blob([csvContent], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'visitors.csv';
-            a.click();
+            // Add table
+            doc.autoTable({
+                head: [['Date & Time', 'First Name', 'Last Name']],
+                body: tableData,
+                startY: 30,
+                theme: 'grid',
+                styles: {
+                    fontSize: 10
+                },
+                headStyles: {
+                    fillColor: [0, 191, 255],
+                    textColor: [255, 255, 255],
+                    fontStyle: 'bold'
+                },
+                alternateRowStyles: {
+                    fillColor: [240, 240, 240]
+                }
+            });
+
+            // Add footer with generation date
+            const pageCount = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                const date = new Date().toLocaleString();
+                doc.setFontSize(10);
+                doc.text(`Generated on: ${date}`, 14, doc.internal.pageSize.height - 10);
+                doc.text(`Page ${i} of ${pageCount}`, doc.internal.pageSize.width - 36, doc.internal.pageSize.height - 10);
+            }
+
+            // Save the PDF
+            doc.save('visitor-records.pdf');
         }
 
         // Search functionality
@@ -505,7 +562,7 @@
         }
 
         function generateNewQR() {
-            const signinURL = window.location.href.replace('admin.html', 'signin.html');
+            const signinURL = 'https://qrsignin.netlify.app/signin.html';
             const uniqueURL = `${signinURL}?t=${Date.now()}`;
             initQRCode(uniqueURL);
         }

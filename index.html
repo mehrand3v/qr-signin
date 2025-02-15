@@ -143,7 +143,7 @@
 
         function generateNewQR() {
             // Get the current URL of your sign-in page
-            const signinURL = window.location.href.replace('qr-generator.html', 'signin.html');
+            const signinURL = 'https://qrsignin.netlify.app/signin.html';
 
             // Add a unique identifier to prevent caching
             const uniqueURL = `${signinURL}?t=${Date.now()}`;
