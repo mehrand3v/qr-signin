@@ -180,7 +180,7 @@
 
     <div class="container">
         <div id="qrcode"></div>
-        <div class="url-display"></div>
+        <!-- <div class="url-display"></div> -->
     </div>
 
     <script>
@@ -205,7 +205,7 @@
             document.querySelector('.url-display').textContent = url;
         }
 
-       
+
         function generateNewQR() {
                 const signinURL = 'https://qrsignin.netlify.app/signin.html';
                 // Use a daily timestamp instead of milliseconds for more stability
