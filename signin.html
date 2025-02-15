@@ -91,10 +91,12 @@
 
         .terms-container {
             display: flex;
-            align-items: flex-start;
-            gap: 12px;
+            align-items: center;
+            gap: 8px;
             margin: 4px 0;
             padding: 0 4px;
+            text-align:center;
+
         }
 
         .terms-checkbox {
@@ -104,10 +106,10 @@
         }
 
         .terms-text {
-            font-size: 15px;
+            font-size: 12px;
             color: #fff;
             opacity: 0.9;
-            line-height: 1.4;
+            /* line-height: 1.4; */
         }
 
         .terms-text a {
@@ -331,12 +333,12 @@
             <input class="input" type="text" id="lastname" name="lastname" placeholder="Enter your last name" required>
         </div>
 
-        <div class="terms-container">
-            <input type="checkbox" id="terms" class="terms-checkbox" required>
-            <label for="terms" class="terms-text">
-                I agree to the <a href="#" target="_blank">Terms and Conditions</a> and <a href="#" target="_blank">Privacy Policy</a>
-            </label>
-        </div>
+      <div class="terms-container">
+    <input type="checkbox" id="terms" class="terms-checkbox" required>
+    <label for="terms" class="terms-text">
+        I agree to all Terms & Privacy Policies
+    </label>
+</div>
 <!-- Update the submit button in signin.html -->
 <button class="submit" type="submit" disabled>
     Submit

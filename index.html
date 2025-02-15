@@ -28,13 +28,21 @@
         header {
             text-align: center;
         }
+        header p{
+            color: #666;
+            font-size: 1.2rem;
+            max-width: 600px;
+            line-height: 1.6;
+
+        }
 
         h1 {
-            color: #00bfff;
+            color: #2214dc;
             margin-bottom: 1rem;
         }
 
         .container {
+            max-width:98%;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -89,6 +97,7 @@
             text-align: center;
             line-height: 1.6;
             color: #666;
+            margin-bottom: 2rem;
         }
     </style>
     <title>Office Sign-in QR Code Generator</title>
@@ -96,17 +105,16 @@
 
 <body>
     <header>
-        <h1>Office Sign-in System</h1>
+        <h1>Welcome</h1>
         <p class="instructions">
-            Generate a QR code that links to your sign-in form. Print this QR code and place it in your office.
-            Visitors can scan it to access the sign-in form directly on their phones.
+            Please scan this QR code to Sign in.
         </p>
     </header>
 
     <div class="container">
         <div id="qrcode"></div>
         <div class="url-display"></div>
-      
+
     </div>
 
     <script>
@@ -122,8 +130,10 @@
                 text: url,
                 width: 256,
                 height: 256,
-                colorDark: "#000000",
-                colorLight: "#ffffff",
+                // colorDark: "#000000",
+                // colorLight: "#ffffff",
+                colorDark: 'purple',
+                colorLight: 'yellow',
                 correctLevel: QRCode.CorrectLevel.H
             });
 
